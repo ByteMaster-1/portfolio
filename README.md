@@ -1,75 +1,73 @@
-# React + TypeScript + Vite
+# Portfolio — Mohd Areeb Khan
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A single-page developer portfolio styled like a code editor (tabs, line gutter,
+status bar). Built with **Vite + React + TypeScript + Tailwind CSS**, deployed
+free on **GitHub Pages**.
 
-Currently, two official plugins are available:
+## Run locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # type-check + production build into dist/
+npm run preview  # preview the production build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Editing your details
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Most details (name, role, company, location, GitHub) are set directly in
+[`vite.config.ts`](vite.config.ts). Only **4 contact links** are env-driven so
+they can stay out of the source:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+EMAIL=""        # 👈 add your email here
+LINKEDIN_URL="https://www.linkedin.com/in/your-handle/"
+LEETCODE_URL="https://leetcode.com/u/your-handle/"
+RESUME_URL="https://link-to-your-resume.pdf"
+```
 
+`vite.config.ts` loads these from `.env` (local) and injects them; read them via
+[`src/config.ts`](src/config.ts):
+
+```ts
+import { config } from './config'
+config.email // -> value of EMAIL (falls back to a placeholder if unset)
+```
+
+> ⚠️ **This is a static site.** Every value is compiled into the public
+> JavaScript bundle and is visible to anyone. Only put **public** info here
+> — never passwords, tokens, or API keys.
+
+## Deploying (env vars stay out of the repo)
+
+`.env` is **git-ignored** — it never gets pushed. It's only used for local dev.
+
+For the live site, set your values as **GitHub Actions Variables** (the same idea
+as Render's env vars, but applied at build time):
+
+1. Repo → **Settings → Secrets and variables → Actions → Variables → New variable**
+2. Add the 4 keys: `EMAIL`, `LINKEDIN_URL`, `LEETCODE_URL`, `RESUME_URL`
+3. Push to `main`. The workflow
+   ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)) injects those
+   variables into `npm run build`, Vite bakes them into `dist/`, and GitHub Pages
+   publishes it.
+
+Anything you don't set falls back to the defaults in
+[`vite.config.ts`](vite.config.ts), so the site never ships broken.
+
+> ⚠️ Because this is a static site, the final values are still visible in the
+> published JavaScript. Actions Variables keep them out of your **source code**,
+> not out of the browser. Never put real secrets here.
+
+## Structure
+
+```
+src/
+  App.tsx              # editor shell: tabs, gutter, status bar
+  config.ts            # reads .env, single source of truth for your details
+  components/
+    Home.tsx           # hello.html  — intro + code card
+    About.tsx          # about.css   — bio, experience, education, skills
+    Projects.tsx       # projects.js — curated project cards
+    icons.tsx          # social / brand icons
 ```

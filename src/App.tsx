@@ -1,38 +1,120 @@
-import { Code2, Terminal } from 'lucide-react'
+import { useState } from 'react'
+import Home from './components/Home'
+import About from './components/About'
+import Projects from './components/Projects'
+import { config } from './config'
+import { GitHubIcon, LinkedInIcon, LeetCodeIcon, MailIcon, BranchIcon } from './components/icons'
+
+export type FileId = 'home' | 'about' | 'projects'
+
+const FILES: { id: FileId; name: string; dot: string; lang: string }[] = [
+  { id: 'home', name: 'hello.html', dot: '#e2955f', lang: 'HTML' },
+  { id: 'about', name: 'about.css', dot: '#61afef', lang: 'CSS' },
+  { id: 'projects', name: 'projects.js', dot: '#f5b544', lang: 'JavaScript' },
+]
+
+// Rough line count per view so the gutter fills the panel nicely.
+const GUTTER_LINES: Record<FileId, number> = {
+  home: 28,
+  about: 72,
+  projects: 46,
+}
+
+const SOCIALS = [
+  { label: 'GitHub', href: config.githubUrl, Icon: GitHubIcon },
+  { label: 'LinkedIn', href: config.linkedinUrl, Icon: LinkedInIcon },
+  { label: 'LeetCode', href: config.leetcodeUrl, Icon: LeetCodeIcon },
+  { label: 'Email', href: `mailto:${config.email}`, Icon: MailIcon },
+]
 
 export default function App() {
+  const [active, setActive] = useState<FileId>('home')
+  const activeFile = FILES.find((f) => f.id === active)!
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6 font-sans">
-      <div className="max-w-xl text-center space-y-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-sm font-medium">
-          <Terminal className="w-4 h-4" />
-          Phase 1: Portfolio Scaffold Live
+    <div className="min-h-screen w-full flex items-stretch justify-center bg-[#050506] p-0 lg:p-4">
+      <div className="w-full flex flex-col overflow-hidden rounded-none lg:rounded-xl border border-[#26262e] bg-[#0c0c0f] shadow-2xl shadow-black/60 min-h-screen lg:min-h-0 lg:h-[calc(100vh-2rem)]">
+        {/* ── Title bar ───────────────────────────────── */}
+        <div className="flex items-center gap-4 h-11 px-4 bg-[#141418] border-b border-[#26262e] shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-[#e06c75]" />
+            <span className="w-3 h-3 rounded-full bg-[#f5b544]" />
+            <span className="w-3 h-3 rounded-full bg-[#98c379]" />
+          </div>
+          <div className="flex-1 text-center text-xs text-[#74747f] truncate">
+            portfolio — {config.name}
+          </div>
+          <div className="hidden sm:block w-[52px]" />
         </div>
 
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl text-white">
-          Product Engineer & CS Student
-        </h1>
+        {/* ── Tab bar (the navigation) ────────────────── */}
+        <div className="flex items-stretch h-10 bg-[#0c0c0f] border-b border-[#26262e] shrink-0 overflow-x-auto scroll-thin">
+          {FILES.map((f) => {
+            const isActive = active === f.id
+            return (
+              <button
+                key={f.id}
+                onClick={() => setActive(f.id)}
+                className={`group relative flex items-center gap-2 px-4 text-xs whitespace-nowrap border-r border-[#1e1e25] transition-colors ${
+                  isActive
+                    ? 'bg-[#101014] text-[#e6e6ea]'
+                    : 'bg-transparent text-[#74747f] hover:text-[#a9a9b3]'
+                }`}
+              >
+                {isActive && <span className="absolute top-0 left-0 right-0 h-0.5 bg-[#f5b544]" />}
+                <span className="w-2 h-2 rounded-sm" style={{ background: f.dot }} />
+                {f.name}
+              </button>
+            )
+          })}
+        </div>
 
-        <p className="text-slate-400 text-lg">
-          Portfolio framework successfully scaffolded with React 19, Vite, TypeScript, and Tailwind CSS.
-        </p>
-
-        <div className="pt-4 flex items-center justify-center gap-4">
-          <div className="flex items-center gap-2 text-sm text-slate-400 border border-slate-800 rounded-lg px-4 py-2 bg-slate-900/50">
-            <Code2 className="w-4 h-4 text-indigo-400" />
-            UnifyApps &bull; NSUT CS+Security
+        {/* ── Body: line gutter + scrollable content ──── */}
+        <div className="flex-1 min-h-0 bg-[#101014] overflow-y-auto scroll-thin">
+          <div className="flex min-h-full">
+            <div className="hidden md:block pt-10 pb-12 px-3 text-right text-[11px] leading-6 text-[#38383f] select-none border-r border-[#1a1a20] shrink-0">
+              {Array.from({ length: GUTTER_LINES[active] }, (_, i) => (
+                <div key={i}>{i + 1}</div>
+              ))}
+            </div>
+            <div className="flex-1 min-w-0">
+              {active === 'home' && <Home onNavigate={setActive} />}
+              {active === 'about' && <About />}
+              {active === 'projects' && <Projects />}
+            </div>
           </div>
-          <a
-            href="https://github.com/ByteMaster-1/portfolio"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2 text-sm text-slate-300 border border-slate-700 hover:border-slate-500 transition-colors rounded-lg px-4 py-2 bg-slate-800"
-          >
-            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-            </svg>
-            GitHub
-          </a>
+        </div>
+
+        {/* ── Status bar ──────────────────────────────── */}
+        <div className="flex items-center justify-between gap-4 h-9 px-4 bg-[#0c0c0f] border-t border-[#26262e] text-[11px] text-[#74747f] shrink-0">
+          <div className="flex items-center gap-3.5">
+            <span className="hidden sm:inline text-xs">Connect with me:</span>
+            <div className="flex items-center gap-4">
+              {SOCIALS.map(({ label, href, Icon }) => {
+                const isMail = href.startsWith('mailto:')
+                return (
+                  <a
+                    key={label}
+                    href={href}
+                    target={isMail ? undefined : '_blank'}
+                    rel={isMail ? undefined : 'noreferrer'}
+                    title={label}
+                    aria-label={label}
+                    className="text-[#b8b8c2] hover:text-[#f5b544] transition-colors"
+                  >
+                    <Icon className="w-[18px] h-[18px]" />
+                  </a>
+                )
+              })}
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="hidden sm:flex items-center gap-1">
+              <BranchIcon className="w-3 h-3" /> main
+            </span>
+            <span className="hidden md:inline">UTF-8</span>
+            <span className="text-[#56b6c2]">{activeFile.lang}</span>
+          </div>
         </div>
       </div>
     </div>

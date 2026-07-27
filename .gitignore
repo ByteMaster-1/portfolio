@@ -12,6 +12,14 @@ dist
 dist-ssr
 *.local
 
+# Local env — do NOT commit. Set these as GitHub Actions Variables for deploys.
+.env
+.env.*
+!.env.example
+
+# Local tooling (dev-server preview config) — not needed in the repo
+.claude
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -33,6 +33,13 @@ jobs:
 
       - name: Build site
         run: npm run build
+        env:
+          # Set these under: Settings → Secrets and variables → Actions → Variables
+          # (Anything left unset falls back to the placeholders in vite.config.ts.)
+          EMAIL: ${{ vars.EMAIL }}
+          LINKEDIN_URL: ${{ vars.LINKEDIN_URL }}
+          LEETCODE_URL: ${{ vars.LEETCODE_URL }}
+          RESUME_URL: ${{ vars.RESUME_URL }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
