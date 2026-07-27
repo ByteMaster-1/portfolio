@@ -20,7 +20,7 @@ Most details (name, role, company, location, GitHub) are set directly in
 they can stay out of the source:
 
 ```bash
-EMAIL=""        # 👈 add your email here
+EMAIL="name@example.com"
 LINKEDIN_URL="https://www.linkedin.com/in/your-handle/"
 LEETCODE_URL="https://leetcode.com/u/your-handle/"
 RESUME_URL="https://link-to-your-resume.pdf"
